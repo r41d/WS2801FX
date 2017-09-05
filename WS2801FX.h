@@ -1,17 +1,19 @@
 /*
-  WS2812FX.h - Library for WS2812 LED effects.
-  
+  WS2801FX.h - Library for WS2812 LED effects.
+
   Harm Aldick - 2016
   www.aldick.org
 
+  WS2801 fork:
+  Lennart Buhl - 2017
 
   FEATURES
     * A lot of blinken modes and counting
-    * WS2812FX can be used as drop-in replacement for Adafruit Neopixel Library
+    * WS2801FX can be used as drop-in replacement for Adafruit WS2801 Library
 
   NOTES
-    * Uses the Adafruit Neopixel library. Get it here: 
-      https://github.com/adafruit/Adafruit_NeoPixel
+    * Uses the Adafruit WS2801 Library. Get it here:
+      https://github.com/adafruit/Adafruit-WS2801-Library
 
 
 
@@ -19,7 +21,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2016  Harm Aldick 
+  Copyright (c) 2016  Harm Aldick
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -46,14 +48,16 @@
   2016-06-03   Code cleanup, minor improvements, new modes
   2016-06-04   2 new fx, fixed setColor (now also resets _mode_color)
   2017-02-02   added external trigger functionality (e.g. for sound-to-light)
+  2017-02-02   removed "blackout" on mode, speed or color-change
+  2017-09-05   port to WS2801 Library
 
 */
 
-#ifndef WS2812FX_h
-#define WS2812FX_h
+#ifndef WS2801FX_h
+#define WS2801FX_h
 
 #include "Arduino.h"
-#include <Adafruit_NeoPixel.h>
+#include <Adafruit_WS2801.h>
 
 #define DEFAULT_BRIGHTNESS 50
 #define DEFAULT_MODE 0
@@ -116,61 +120,65 @@
 #define FX_MODE_FIRE_FLICKER            45
 #define FX_MODE_FIRE_FLICKER_SOFT       46
 
+// custom orders starting at 10
+#define WS2801_RBG 10
 
-class WS2812FX : public Adafruit_NeoPixel {
+class WS2801FX : public Adafruit_WS2801 {
 
-  typedef void (WS2812FX::*mode_ptr)(void);
+  typedef void (WS2801FX::*mode_ptr)(void);
 
   public:
 
-    WS2812FX(uint16_t n, uint8_t p, neoPixelType t) : Adafruit_NeoPixel(n, p, t) {
-      _mode[FX_MODE_STATIC]                = &WS2812FX::mode_static;
-      _mode[FX_MODE_BLINK]                 = &WS2812FX::mode_blink;
-      _mode[FX_MODE_BREATH]                = &WS2812FX::mode_breath;
-      _mode[FX_MODE_COLOR_WIPE]            = &WS2812FX::mode_color_wipe;
-      _mode[FX_MODE_COLOR_WIPE_RANDOM]     = &WS2812FX::mode_color_wipe_random;
-      _mode[FX_MODE_RANDOM_COLOR]          = &WS2812FX::mode_random_color;
-      _mode[FX_MODE_SINGLE_DYNAMIC]        = &WS2812FX::mode_single_dynamic;
-      _mode[FX_MODE_MULTI_DYNAMIC]         = &WS2812FX::mode_multi_dynamic;
-      _mode[FX_MODE_RAINBOW]               = &WS2812FX::mode_rainbow;
-      _mode[FX_MODE_RAINBOW_CYCLE]         = &WS2812FX::mode_rainbow_cycle;
-      _mode[FX_MODE_SCAN]                  = &WS2812FX::mode_scan;
-      _mode[FX_MODE_DUAL_SCAN]             = &WS2812FX::mode_dual_scan;
-      _mode[FX_MODE_FADE]                  = &WS2812FX::mode_fade;
-      _mode[FX_MODE_THEATER_CHASE]         = &WS2812FX::mode_theater_chase;
-      _mode[FX_MODE_THEATER_CHASE_RAINBOW] = &WS2812FX::mode_theater_chase_rainbow;
-      _mode[FX_MODE_RUNNING_LIGHTS]        = &WS2812FX::mode_running_lights;
-      _mode[FX_MODE_TWINKLE]               = &WS2812FX::mode_twinkle;
-      _mode[FX_MODE_TWINKLE_RANDOM]        = &WS2812FX::mode_twinkle_random;
-      _mode[FX_MODE_TWINKLE_FADE]          = &WS2812FX::mode_twinkle_fade;
-      _mode[FX_MODE_TWINKLE_FADE_RANDOM]   = &WS2812FX::mode_twinkle_fade_random;
-      _mode[FX_MODE_SPARKLE]               = &WS2812FX::mode_sparkle;
-      _mode[FX_MODE_FLASH_SPARKLE]         = &WS2812FX::mode_flash_sparkle;
-      _mode[FX_MODE_HYPER_SPARKLE]         = &WS2812FX::mode_hyper_sparkle;
-      _mode[FX_MODE_STROBE]                = &WS2812FX::mode_strobe;
-      _mode[FX_MODE_STROBE_RAINBOW]        = &WS2812FX::mode_strobe_rainbow;
-      _mode[FX_MODE_MULTI_STROBE]          = &WS2812FX::mode_multi_strobe;
-      _mode[FX_MODE_BLINK_RAINBOW]         = &WS2812FX::mode_blink_rainbow;
-      _mode[FX_MODE_CHASE_WHITE]           = &WS2812FX::mode_chase_white;
-      _mode[FX_MODE_CHASE_COLOR]           = &WS2812FX::mode_chase_color;
-      _mode[FX_MODE_CHASE_RANDOM]          = &WS2812FX::mode_chase_random;
-      _mode[FX_MODE_CHASE_RAINBOW]         = &WS2812FX::mode_chase_rainbow;
-      _mode[FX_MODE_CHASE_FLASH]           = &WS2812FX::mode_chase_flash;
-      _mode[FX_MODE_CHASE_FLASH_RANDOM]    = &WS2812FX::mode_chase_flash_random;
-      _mode[FX_MODE_CHASE_RAINBOW_WHITE]   = &WS2812FX::mode_chase_rainbow_white;
-      _mode[FX_MODE_CHASE_BLACKOUT]        = &WS2812FX::mode_chase_blackout;
-      _mode[FX_MODE_CHASE_BLACKOUT_RAINBOW]= &WS2812FX::mode_chase_blackout_rainbow;
-      _mode[FX_MODE_COLOR_SWEEP_RANDOM]    = &WS2812FX::mode_color_sweep_random;
-      _mode[FX_MODE_RUNNING_COLOR]         = &WS2812FX::mode_running_color;
-      _mode[FX_MODE_RUNNING_RED_BLUE]      = &WS2812FX::mode_running_red_blue;
-      _mode[FX_MODE_RUNNING_RANDOM]        = &WS2812FX::mode_running_random;
-      _mode[FX_MODE_LARSON_SCANNER]        = &WS2812FX::mode_larson_scanner;
-      _mode[FX_MODE_COMET]                 = &WS2812FX::mode_comet;
-      _mode[FX_MODE_FIREWORKS]             = &WS2812FX::mode_fireworks;
-      _mode[FX_MODE_FIREWORKS_RANDOM]      = &WS2812FX::mode_fireworks_random;
-      _mode[FX_MODE_MERRY_CHRISTMAS]       = &WS2812FX::mode_merry_christmas;
-      _mode[FX_MODE_FIRE_FLICKER]          = &WS2812FX::mode_fire_flicker;
-      _mode[FX_MODE_FIRE_FLICKER_SOFT]     = &WS2812FX::mode_fire_flicker_soft;
+    WS2801FX(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order=WS2801_RGB)
+            : Adafruit_WS2801(n, dpin, cpin)
+    {
+      _mode[FX_MODE_STATIC]                = &WS2801FX::mode_static;
+      _mode[FX_MODE_BLINK]                 = &WS2801FX::mode_blink;
+      _mode[FX_MODE_BREATH]                = &WS2801FX::mode_breath;
+      _mode[FX_MODE_COLOR_WIPE]            = &WS2801FX::mode_color_wipe;
+      _mode[FX_MODE_COLOR_WIPE_RANDOM]     = &WS2801FX::mode_color_wipe_random;
+      _mode[FX_MODE_RANDOM_COLOR]          = &WS2801FX::mode_random_color;
+      _mode[FX_MODE_SINGLE_DYNAMIC]        = &WS2801FX::mode_single_dynamic;
+      _mode[FX_MODE_MULTI_DYNAMIC]         = &WS2801FX::mode_multi_dynamic;
+      _mode[FX_MODE_RAINBOW]               = &WS2801FX::mode_rainbow;
+      _mode[FX_MODE_RAINBOW_CYCLE]         = &WS2801FX::mode_rainbow_cycle;
+      _mode[FX_MODE_SCAN]                  = &WS2801FX::mode_scan;
+      _mode[FX_MODE_DUAL_SCAN]             = &WS2801FX::mode_dual_scan;
+      _mode[FX_MODE_FADE]                  = &WS2801FX::mode_fade;
+      _mode[FX_MODE_THEATER_CHASE]         = &WS2801FX::mode_theater_chase;
+      _mode[FX_MODE_THEATER_CHASE_RAINBOW] = &WS2801FX::mode_theater_chase_rainbow;
+      _mode[FX_MODE_RUNNING_LIGHTS]        = &WS2801FX::mode_running_lights;
+      _mode[FX_MODE_TWINKLE]               = &WS2801FX::mode_twinkle;
+      _mode[FX_MODE_TWINKLE_RANDOM]        = &WS2801FX::mode_twinkle_random;
+      _mode[FX_MODE_TWINKLE_FADE]          = &WS2801FX::mode_twinkle_fade;
+      _mode[FX_MODE_TWINKLE_FADE_RANDOM]   = &WS2801FX::mode_twinkle_fade_random;
+      _mode[FX_MODE_SPARKLE]               = &WS2801FX::mode_sparkle;
+      _mode[FX_MODE_FLASH_SPARKLE]         = &WS2801FX::mode_flash_sparkle;
+      _mode[FX_MODE_HYPER_SPARKLE]         = &WS2801FX::mode_hyper_sparkle;
+      _mode[FX_MODE_STROBE]                = &WS2801FX::mode_strobe;
+      _mode[FX_MODE_STROBE_RAINBOW]        = &WS2801FX::mode_strobe_rainbow;
+      _mode[FX_MODE_MULTI_STROBE]          = &WS2801FX::mode_multi_strobe;
+      _mode[FX_MODE_BLINK_RAINBOW]         = &WS2801FX::mode_blink_rainbow;
+      _mode[FX_MODE_CHASE_WHITE]           = &WS2801FX::mode_chase_white;
+      _mode[FX_MODE_CHASE_COLOR]           = &WS2801FX::mode_chase_color;
+      _mode[FX_MODE_CHASE_RANDOM]          = &WS2801FX::mode_chase_random;
+      _mode[FX_MODE_CHASE_RAINBOW]         = &WS2801FX::mode_chase_rainbow;
+      _mode[FX_MODE_CHASE_FLASH]           = &WS2801FX::mode_chase_flash;
+      _mode[FX_MODE_CHASE_FLASH_RANDOM]    = &WS2801FX::mode_chase_flash_random;
+      _mode[FX_MODE_CHASE_RAINBOW_WHITE]   = &WS2801FX::mode_chase_rainbow_white;
+      _mode[FX_MODE_CHASE_BLACKOUT]        = &WS2801FX::mode_chase_blackout;
+      _mode[FX_MODE_CHASE_BLACKOUT_RAINBOW]= &WS2801FX::mode_chase_blackout_rainbow;
+      _mode[FX_MODE_COLOR_SWEEP_RANDOM]    = &WS2801FX::mode_color_sweep_random;
+      _mode[FX_MODE_RUNNING_COLOR]         = &WS2801FX::mode_running_color;
+      _mode[FX_MODE_RUNNING_RED_BLUE]      = &WS2801FX::mode_running_red_blue;
+      _mode[FX_MODE_RUNNING_RANDOM]        = &WS2801FX::mode_running_random;
+      _mode[FX_MODE_LARSON_SCANNER]        = &WS2801FX::mode_larson_scanner;
+      _mode[FX_MODE_COMET]                 = &WS2801FX::mode_comet;
+      _mode[FX_MODE_FIREWORKS]             = &WS2801FX::mode_fireworks;
+      _mode[FX_MODE_FIREWORKS_RANDOM]      = &WS2801FX::mode_fireworks_random;
+      _mode[FX_MODE_MERRY_CHRISTMAS]       = &WS2801FX::mode_merry_christmas;
+      _mode[FX_MODE_FIRE_FLICKER]          = &WS2801FX::mode_fire_flicker;
+      _mode[FX_MODE_FIRE_FLICKER_SOFT]     = &WS2801FX::mode_fire_flicker_soft;
 
       _name[FX_MODE_STATIC]                = "Static";
       _name[FX_MODE_BLINK]                 = "Blink";
@@ -219,7 +227,6 @@ class WS2812FX : public Adafruit_NeoPixel {
       _name[FX_MODE_MERRY_CHRISTMAS]       = "Merry Christmas";
       _name[FX_MODE_FIRE_FLICKER]          = "Fire Flicker";
       _name[FX_MODE_FIRE_FLICKER_SOFT]     = "Fire Flicker (soft)";
-      
 
       _mode_index = DEFAULT_MODE;
       _speed = DEFAULT_SPEED;
@@ -232,6 +239,13 @@ class WS2812FX : public Adafruit_NeoPixel {
       _mode_color = DEFAULT_COLOR;
       _counter_mode_call = 0;
       _counter_mode_step = 0;
+      _order = order;
+
+      if (order >= 10) { // custom order
+        Adafruit_WS2801::updateOrder(WS2801_RGB);
+      } else { // standard order
+        Adafruit_WS2801::updateOrder(_order);
+      }
     }
 
     void
@@ -250,7 +264,14 @@ class WS2812FX : public Adafruit_NeoPixel {
       decreaseBrightness(uint8_t s),
       trigger(void);
 
-    boolean 
+    // wrappers that needed to be introduced for switching to WS2801 library
+    void
+      clear(),
+      wrapNeoPixelSetBrightness(uint8_t b),
+      setPixelColor(uint16_t n, uint32_t c),
+      setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b);
+
+    boolean
       isRunning(void);
 
     uint8_t
@@ -328,6 +349,10 @@ class WS2812FX : public Adafruit_NeoPixel {
       _speed,
       _brightness;
 
+    // added for WS2801 fork
+    uint8_t
+      brightness;
+
     uint16_t
       _led_count;
 
@@ -338,6 +363,10 @@ class WS2812FX : public Adafruit_NeoPixel {
       _counter_mode_step,
       _mode_color,
       _mode_delay;
+
+    // added for WS2801 fork
+    int
+      _order;
 
     unsigned long
       _mode_last_call_time;

@@ -1,17 +1,14 @@
-#include <WS2812FX.h>
+#include <WS2801FX.h>
 
-#define LED_COUNT 13
-#define LED_PIN 11
+#define LED_COUNT 60
+#define LED_DATA_PIN 12
+#define LED_CLOCK_PIN 14
 
 // Parameter 1 = number of pixels in strip
-// Parameter 2 = Arduino pin number (most are valid)
-// Parameter 3 = pixel type flags, add together as needed:
-//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-//   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-WS2812FX ws2812fx = WS2812FX(LED_COUNT, LED_PIN, NEO_RGB + NEO_KHZ800);
+// Parameter 2 = data pin number
+// Parameter 3 = clock pin number
+// Parameter 4 (optional) = pixel type, one of WS2801_RGB/GRB/RBG
+WS2801FX ws2801fx = WS2801FX(LED_COUNT, LED_DATA_PIN, LED_CLOCK_PIN, WS2801_RGB);
 
 String cmd = "";               // String to store incoming serial commands
 boolean cmd_complete = false;  // whether the command string is complete
@@ -19,19 +16,19 @@ boolean cmd_complete = false;  // whether the command string is complete
 
 void setup() {
   Serial.begin(115200);
-  ws2812fx.init();
-  ws2812fx.setBrightness(30);
-  ws2812fx.setSpeed(200);
-  ws2812fx.setColor(0x007BFF);
-  ws2812fx.setMode(FX_MODE_STATIC);
-  ws2812fx.start();
+  ws2801fx.init();
+  ws2801fx.setBrightness(30);
+  ws2801fx.setSpeed(200);
+  ws2801fx.setColor(0x007BFF);
+  ws2801fx.setMode(FX_MODE_STATIC);
+  ws2801fx.start();
 
   printModes();
   printUsage();
 }
 
 void loop() {
-  ws2812fx.service();
+  ws2801fx.service();
 
   // On Atmega32U4 based boards (leonardo, micro) serialEvent is not called
   // automatically when data arrive on the serial RX. We need to do it ourself
@@ -48,64 +45,64 @@ void loop() {
  * Checks received command and calls corresponding functions.
  */
 void process_command() {
-  if(cmd == F("b+")) { 
-    ws2812fx.increaseBrightness(25);
+  if(cmd == F("b+")) {
+    ws2801fx.increaseBrightness(25);
     Serial.print(F("Increased brightness by 25 to: "));
-    Serial.println(ws2812fx.getBrightness());
+    Serial.println(ws2801fx.getBrightness());
   }
 
   if(cmd == F("b-")) {
-    ws2812fx.decreaseBrightness(25); 
+    ws2801fx.decreaseBrightness(25);
     Serial.print(F("Decreased brightness by 25 to: "));
-    Serial.println(ws2812fx.getBrightness());
+    Serial.println(ws2801fx.getBrightness());
   }
 
-  if(cmd.startsWith(F("b "))) { 
+  if(cmd.startsWith(F("b "))) {
     uint8_t b = (uint8_t) cmd.substring(2, cmd.length()).toInt();
-    ws2812fx.setBrightness(b);
+    ws2801fx.setBrightness(b);
     Serial.print(F("Set brightness to: "));
-    Serial.println(ws2812fx.getBrightness());
+    Serial.println(ws2801fx.getBrightness());
   }
 
-  if(cmd == F("s+")) { 
-    ws2812fx.increaseSpeed(10);
+  if(cmd == F("s+")) {
+    ws2801fx.increaseSpeed(10);
     Serial.print(F("Increased speed by 10 to: "));
-    Serial.println(ws2812fx.getSpeed());
+    Serial.println(ws2801fx.getSpeed());
   }
 
   if(cmd == F("s-")) {
-    ws2812fx.decreaseSpeed(10); 
+    ws2801fx.decreaseSpeed(10);
     Serial.print(F("Decreased speed by 10 to: "));
-    Serial.println(ws2812fx.getSpeed());
+    Serial.println(ws2801fx.getSpeed());
   }
 
   if(cmd.startsWith(F("s "))) {
     uint8_t s = (uint8_t) cmd.substring(2, cmd.length()).toInt();
-    ws2812fx.setSpeed(s); 
+    ws2801fx.setSpeed(s);
     Serial.print(F("Set speed to: "));
-    Serial.println(ws2812fx.getSpeed());
+    Serial.println(ws2801fx.getSpeed());
   }
 
-  if(cmd.startsWith(F("m "))) { 
+  if(cmd.startsWith(F("m "))) {
     uint8_t m = (uint8_t) cmd.substring(2, cmd.length()).toInt();
-    ws2812fx.setMode(m);
+    ws2801fx.setMode(m);
     Serial.print(F("Set mode to: "));
-    Serial.print(ws2812fx.getMode());
+    Serial.print(ws2801fx.getMode());
     Serial.print(" - ");
-    Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
+    Serial.println(ws2801fx.getModeName(ws2801fx.getMode()));
   }
 
-  if(cmd.startsWith(F("c "))) { 
+  if(cmd.startsWith(F("c "))) {
     uint32_t c = (uint32_t) strtol(&cmd.substring(2, cmd.length())[0], NULL, 16);
-    ws2812fx.setColor(c); 
+    ws2801fx.setColor(c);
     Serial.print(F("Set color to: "));
     Serial.print(F("0x"));
-    if(ws2812fx.getColor() < 0x100000) { Serial.print(F("0")); }
-    if(ws2812fx.getColor() < 0x010000) { Serial.print(F("0")); }
-    if(ws2812fx.getColor() < 0x001000) { Serial.print(F("0")); }
-    if(ws2812fx.getColor() < 0x000100) { Serial.print(F("0")); }
-    if(ws2812fx.getColor() < 0x000010) { Serial.print(F("0")); }
-    Serial.println(ws2812fx.getColor(), HEX);
+    if(ws2801fx.getColor() < 0x100000) { Serial.print(F("0")); }
+    if(ws2801fx.getColor() < 0x010000) { Serial.print(F("0")); }
+    if(ws2801fx.getColor() < 0x001000) { Serial.print(F("0")); }
+    if(ws2801fx.getColor() < 0x000100) { Serial.print(F("0")); }
+    if(ws2801fx.getColor() < 0x000010) { Serial.print(F("0")); }
+    Serial.println(ws2801fx.getColor(), HEX);
   }
 
   cmd = "";              // reset the commandstring
@@ -138,15 +135,15 @@ void printUsage() {
 
 
 /*
- * Prints all available WS2812FX blinken modes.
+ * Prints all available WS2801FX blinken modes.
  */
 void printModes() {
   Serial.println(F("Supporting the following modes: "));
   Serial.println();
-  for(int i=0; i < ws2812fx.getModeCount(); i++) {
+  for(int i=0; i < ws2801fx.getModeCount(); i++) {
     Serial.print(i);
     Serial.print(F("\t"));
-    Serial.println(ws2812fx.getModeName(i));
+    Serial.println(ws2801fx.getModeName(i));
   }
   Serial.println();
 }

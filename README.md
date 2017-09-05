@@ -1,16 +1,27 @@
-![WS2812FX library](https://raw.githubusercontent.com/kitesurfer1404/WS2812FX/master/WS2812FX_logo.png)
+![WS2801FX library](https://raw.githubusercontent.com/r41d/WS2801FX/master/WS2801FX_logo.png)
 
-WS2812FX - More Blinken for your LEDs!
+WS2801FX - More Blinken for your LEDs!
 ======================================
 
-This library features a variety of blinken effects for the WS2811/WS2812/NeoPixel LEDs. It is meant to be a drop-in replacement for the Adafruit NeoPixel library with additional features.
+This is a fork of [WS2812FX](https://github.com/kitesurfer1404/WS2812FX), adapted to WS2801 using the [Adafruit_WS2801 Library](https://github.com/adafruit/Adafruit-WS2801-Library).
+This library features a variety of blinken effects for the WS2801 LEDs.
+It is meant to be a drop-in replacement for the [Adafruit WS2801 Library](https://github.com/adafruit/Adafruit-WS2801-Library) with additional features.
+
+WS2801FX specific notes
+-----------------------
+
+* The `clear` method was manually implemented because it's not a part of Adafruits's WS2801 library.
+* Additionaly to RGB and GRB (which WS2801 lib can handle), a hack was put in place so this lib can also handle RBG strips (these do exist).
+* A `setPixelColor` wrapper method was implemented which takes care of setting pixels with the current brightess, the `setPixelColor` in WS2801 library doesn't account for that.
+* Contrary to the Adafruit NeoPixel library, the Adafruit WS2801 Library does not feature the `setBrightness` function, which is called in various places. WS2801FX contains an attempt to emulate this, but this is still buggy at the moment. Therefore modes Breath and Fade don't work.
+
 
 Features
 --------
 
 * 47 different effects. And counting.
 * Free of any delay()
-* Tested on Arduino Nano, Uno, Micro and ESP8266.
+* Tested on Arduino and ESP8266.
 * All effects with printable names - easy to use in user interfaces.
 * FX, speed and brightness controllable on the fly.
 * Ready for sound-to-light (see external trigger example)
@@ -19,34 +30,35 @@ Features
 Download, Install and Example
 -----------------------------
 
-* Install the famous [Adafruit NeoPixel library](https://github.com/adafruit/Adafruit_NeoPixel)
+* Install the famous [Adafruit WS2801 Library](https://github.com/adafruit/Adafruit-WS2801-Library)
 * Download this repository.
 * Extract to your Arduino libraries directory.
 * Open Arduino IDE.
-* Now you can choose File > Examples > WS2812FX > ...
+* Now you can choose File > Examples > WS2801FX > ...
 
 See examples for basic usage.
 
 In it's most simple form, here's the code to get you started!
 
 ```cpp
-#include <WS2812FX.h>
+#include <WS2801FX.h>
 
-#define LED_COUNT 30
-#define LED_PIN 12
+#define LED_COUNT 60
+#define LED_DATA_PIN 12
+#define LED_CLOCK_PIN 14
 
-WS2812FX ws2812fx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+WS2801FX ws2801fx = WS2801FX(LED_COUNT, LED_DATA_PIN, LED_CLOCK_PIN, WS2801_RGB);
 
 void setup() {
-  ws2812fx.init();
-  ws2812fx.setBrightness(100);
-  ws2812fx.setSpeed(200);
-  ws2812fx.setMode(FX_MODE_RAINBOW_CYCLE);
-  ws2812fx.start();
+  ws2801fx.init();
+  ws2801fx.setBrightness(100);
+  ws2801fx.setSpeed(200);
+  ws2801fx.setMode(FX_MODE_RAINBOW_CYCLE);
+  ws2801fx.start();
 }
 
 void loop() {
-  ws2812fx.service();
+  ws2801fx.service();
 }
 ```
 
@@ -103,7 +115,13 @@ Effects
 * **Fire Flicker (soft)** - Fire flickering effect. Runs slower/softer.
 
 
-Projects using WS2812FX
+Projects using WS2801FX
+-----------------------
+
+* none yet
+
+
+Projects using the original WS2812FX
 -----------------------
 
 * [Smart Home project by renat2985](https://github.com/renat2985/rgb) using the ESP8266. Including a nice webinterface in the demo video!
