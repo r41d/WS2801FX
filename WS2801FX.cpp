@@ -397,7 +397,7 @@ void WS2801FX::mode_fade(void) {
 
   int b = _counter_mode_step - 127;
   b = 255 - (abs(b) * 2);
-  b = map(b, 0, 255, min(25, _brightness), _brightness);
+  b = map(b, 0, 255, min((uint8_t) 25, _brightness), _brightness);
   WS2801FX::setBrightness(b);
   Adafruit_WS2801::show();
 
