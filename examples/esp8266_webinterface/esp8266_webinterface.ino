@@ -78,7 +78,7 @@ unsigned long last_wifi_check_time = 0;
 String modes = "";
 
 WS2801FX ws2801fx = WS2801FX(LED_COUNT, LED_DATA_PIN, LED_CLOCK_PIN, WS2801_RBG);
-ESP8266WebServer server = ESP8266WebServer(HTTP_PORT);
+ESP8266WebServer server(HTTP_PORT);
 
 
 void setup(){
