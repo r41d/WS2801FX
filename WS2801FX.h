@@ -140,8 +140,11 @@ const uint8_t PROGMEM gamma8[] = {
 #define FX_MODE_FIRE_FLICKER            45
 #define FX_MODE_FIRE_FLICKER_SOFT       46
 
-// custom orders starting at 10
+// Adafruit WS2801 Library supports WS2801_RGB and WS2801_GRB
+// Custom orders starting at 10
 #define WS2801_RBG 10
+#define WS2801_GBR 11
+// I've never seen an ordering starting with B** yet...
 
 class WS2801FX : public Adafruit_WS2801 {
 
@@ -263,7 +266,7 @@ class WS2801FX : public Adafruit_WS2801 {
 
       if (order >= 10) { // custom order
         Adafruit_WS2801::updateOrder(WS2801_RGB);
-      } else { // standard order
+      } else { // order supported by Adafruit_WS2801
         Adafruit_WS2801::updateOrder(_order);
       }
     }
