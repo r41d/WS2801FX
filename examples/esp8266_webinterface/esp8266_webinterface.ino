@@ -50,16 +50,16 @@
 
 //#define STATIC_IP                       // uncomment for static IP, set IP below
 #ifdef STATIC_IP
-  IPAddress ip(192,168,0,123);
-  IPAddress gateway(192,168,0,1);
-  IPAddress subnet(255,255,255,0);
+  IPAddress ip(192, 168, 0, 123);
+  IPAddress gateway(192, 168, 0, 1);
+  IPAddress subnet(255, 255, 255, 0);
 #endif
 
 // QUICKFIX...See https://github.com/esp8266/Arduino/issues/263
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
 
-#define LED_COUNT 60
+#define LED_COUNT 50
 #define LED_DATA_PIN 12
 #define LED_CLOCK_PIN 14
 
@@ -120,9 +120,9 @@ void loop() {
   server.handleClient();
   ws2801fx.service();
 
-  if(now - last_wifi_check_time > WIFI_TIMEOUT) {
+  if (now - last_wifi_check_time > WIFI_TIMEOUT) {
     Serial.print("Checking WiFi... ");
-    if(WiFi.status() != WL_CONNECTED) {
+    if (WiFi.status() != WL_CONNECTED) {
       Serial.println("WiFi connection lost. Reconnecting...");
       wifi_setup();
     } else {
@@ -144,16 +144,16 @@ void wifi_setup() {
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   WiFi.mode(WIFI_STA);
-  #ifdef STATIC_IP
-    WiFi.config(ip, gateway, subnet);
-  #endif
+#ifdef STATIC_IP
+  WiFi.config(ip, gateway, subnet);
+#endif
 
   unsigned long connect_start = millis();
-  while(WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
 
-    if(millis() - connect_start > WIFI_TIMEOUT) {
+    if (millis() - connect_start > WIFI_TIMEOUT) {
       Serial.println();
       Serial.print("Tried ");
       Serial.print(WIFI_TIMEOUT);
@@ -175,7 +175,7 @@ void wifi_setup() {
  */
 void modes_setup() {
   modes = "";
-  for(uint8_t i=0; i < ws2801fx.getModeCount(); i++) {
+  for (uint8_t i = 0; i < ws2801fx.getModeCount(); i++) {
     modes += "<li><a href='#' class='m' id='";
     modes += i;
     modes += "'>";
@@ -193,41 +193,41 @@ void srv_handle_not_found() {
 }
 
 void srv_handle_index_html() {
-  server.send_P(200,"text/html", index_html);
+  server.send_P(200, "text/html", index_html);
 }
 
 void srv_handle_main_js() {
-  server.send_P(200,"application/javascript", main_js);
+  server.send_P(200, "application/javascript", main_js);
 }
 
 void srv_handle_modes() {
-  server.send(200,"text/plain", modes);
+  server.send(200, "text/plain", modes);
 }
 
 void srv_handle_set() {
-  for (uint8_t i=0; i < server.args(); i++){
-    if(server.argName(i) == "c") {
+  for (uint8_t i = 0; i < server.args(); i++) {
+    if (server.argName(i) == "c") {
       uint32_t tmp = (uint32_t) strtol(&server.arg(i)[0], NULL, 16);
-      if(tmp >= 0x000000 && tmp <= 0xFFFFFF) {
+      if (tmp >= 0x000000 && tmp <= 0xFFFFFF) {
         ws2801fx.setColor(tmp);
       }
     }
 
-    if(server.argName(i) == "m") {
+    if (server.argName(i) == "m") {
       uint8_t tmp = (uint8_t) strtol(&server.arg(i)[0], NULL, 10);
       ws2801fx.setMode(tmp % ws2801fx.getModeCount());
     }
 
-    if(server.argName(i) == "b") {
-      if(server.arg(i)[0] == '-') {
+    if (server.argName(i) == "b") {
+      if (server.arg(i)[0] == '-') {
         ws2801fx.decreaseBrightness(BRIGHTNESS_STEP);
       } else {
         ws2801fx.increaseBrightness(BRIGHTNESS_STEP);
       }
     }
 
-    if(server.argName(i) == "s") {
-      if(server.arg(i)[0] == '-') {
+    if (server.argName(i) == "s") {
+      if (server.arg(i)[0] == '-') {
         ws2801fx.decreaseSpeed(SPEED_STEP);
       } else {
         ws2801fx.increaseSpeed(SPEED_STEP);
