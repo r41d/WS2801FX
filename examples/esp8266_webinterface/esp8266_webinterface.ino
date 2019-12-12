@@ -207,14 +207,18 @@ void srv_handle_modes() {
 void srv_handle_set() {
   for (uint8_t i = 0; i < server.args(); i++) {
     if (server.argName(i) == "c") {
-      uint32_t tmp = (uint32_t) strtol(&server.arg(i)[0], NULL, 16);
+      char color[7];
+      server.arg(i).toCharArray(color, 7);
+      uint32_t tmp = (uint32_t) strtol(color, NULL, 16);
       if (tmp >= 0x000000 && tmp <= 0xFFFFFF) {
         ws2801fx.setColor(tmp);
       }
     }
 
     if (server.argName(i) == "m") {
-      uint8_t tmp = (uint8_t) strtol(&server.arg(i)[0], NULL, 10);
+      char mode[2];
+      server.arg(i).toCharArray(mode,2);
+      uint8_t tmp = (uint8_t) strtol(mode, NULL, 10);
       ws2801fx.setMode(tmp % ws2801fx.getModeCount());
     }
 
